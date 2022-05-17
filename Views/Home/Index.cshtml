@@ -1,0 +1,190 @@
+﻿@model sea_war.BLL.Game
+@{
+	ViewData["Title"] = "Home Page";	
+}
+
+<!--== Переход хода к Боту ==-->
+@if (!Model.ManTurn)
+{
+	<script>
+		function ShootBot()
+		{
+			window.location = "/Home/BotShot";
+		}
+		setTimeout(ShootBot, 2000);
+	</script>
+}
+
+<div class="text-center" >
+
+	<h1 class="display-4">Морской Бой</h1>
+
+	@if (Model.Start == 0)
+	{
+		<a href="@Url.Action("How", "Home", new { i = 1 }, null)">Сам&nbsp;&nbsp;</a>
+		<a href="@Url.Action("How", "Home", new { i = 2 }, null)">&nbsp;&nbsp;Автоматически</a>
+	}
+
+	<!--== Определение победителя ==-->
+	@if (@Model.Finished)
+	{
+		<h2>Выйграл @Model.Winner</h2>
+	}
+
+	<!--== Поле Игрока ==-->
+	<table border="1">
+		<caption>Ваше поле</caption>
+			@{int i2=1;}
+			@for (int i1 = 0; i1 < 11; i1++)
+			{
+				<th>@i1</th>
+			}
+			@for (int i = 0; i < 10; i++)
+			{
+				<tr>
+				<th>&nbsp @i2&nbsp&nbsp</th>
+				@{i2++;}
+				@for (int j = 0; j < 10; j++)
+				{
+					@if (Model.Start == 1)
+					{
+						//<a href="@Url.Action("ManShot", "Home", new { x = 1, y = 1 }, null)">&nbsp&nbsp; x &nbsp&nbsp;</a>
+						<td style="background-color: #00FFFF;"
+						onmouseout="this.style.background='#00FFFF'"
+						onmouseover="this.style.background='#fee5ac'">
+							<a href="">&nbsp&nbsp; x &nbsp&nbsp;</a>
+						</td>
+					}
+					else
+					{
+						@if (@Model.Man.CellsWithShots[i, j] == 1)
+						{
+							@if (@Model.Man.CellsWithShips[i, j] >= 0)
+							{
+								@if (@Model.Man.IsDead(@Model.Man.Ships[@Model.Man.CellsWithShips[i, j]]))
+								{
+									<td style="background-color: #800000;">&nbsp&nbsp; x &nbsp&nbsp;</td>
+								}
+								else
+								{
+									<td style="background-color: #FF4500;">&nbsp&nbsp; x &nbsp&nbsp;</td>
+								}
+							}
+							else
+							{
+								<td style="background-color: #A9A9A9;">&nbsp&nbsp; x &nbsp&nbsp;</td>
+							}
+						}
+						else
+						{
+							@if (@Model.Man.CellsWithShips[i, j] >= 0)
+							{
+								<td style="background-color: #32CD32;">&nbsp&nbsp; x &nbsp&nbsp;</td>
+							}
+							else
+							{
+								<td style="background-color: #00FFFF;">&nbsp&nbsp; x &nbsp&nbsp;</td>
+							}
+						}
+					}
+				}
+				</tr>
+			}
+	</table>
+
+	<!--== Поле Бота ==-->
+	<table border="1">
+		<caption>Вражеское поле</caption>
+			@{int i3=1;}
+			@for (int i1 = 0; i1 < 11; i1++)
+			{
+				<th>@i1</th>
+			}
+			@for (int i = 0; i < 10; i++)
+			{
+				<tr>
+				<th>&nbsp @i3&nbsp&nbsp</th>
+				@{i3++;}
+				@for (int j = 0; j < 10; j++)
+				{
+					@if (@Model.Bot.CellsWithShots[i, j] == 1)
+					{
+						@if (@Model.Bot.CellsWithShips[i, j] >= 0)
+						{
+							@if (@Model.Bot.IsDead(@Model.Bot.Ships[@Model.Bot.CellsWithShips[i, j]]))
+							{
+								<td style="background-color: #800000;">&nbsp&nbsp; x &nbsp&nbsp;</td>
+							}
+							else
+							{
+								<td style="background-color: #FF4500;">&nbsp&nbsp; x &nbsp&nbsp;</td>
+							}
+						}
+						else
+						{
+							<td style="background-color: #A9A9A9;">&nbsp&nbsp; x &nbsp&nbsp;</td>
+						}
+					}
+					else
+					{
+						@if (@Model.Bot.CellsWithShips[i, j] >= 0)
+						{
+							<td style="background-color: #00FFFF;">
+								@if (Model.ManTurn && !Model.Finished)
+								{
+									@if (Model.Start != 0)
+									{
+										<a href="@Url.Action("ManShot", "Home", new { x = i, y = j }, null)">&nbsp&nbsp; x &nbsp&nbsp;</a>
+									}
+									else
+									{
+										<span>&nbsp&nbsp; x &nbsp&nbsp;</span>
+									}
+								}
+								else
+								{
+									<span>&nbsp&nbsp; x &nbsp&nbsp;</span>
+								}
+							</td>
+						}
+						else
+						{
+							<td style="background-color: #00FFFF;">
+								@if (Model.ManTurn && !Model.Finished)
+								{
+									@if (Model.Start != 0)
+									{
+										<a href="@Url.Action("ManShot", "Home", new { x = i, y = j }, null)">&nbsp&nbsp; x &nbsp&nbsp;</a>
+									}
+									else
+									{
+										<span>&nbsp&nbsp; x &nbsp&nbsp;</span>
+									}
+								}
+								else
+								{
+									<span>&nbsp&nbsp; x &nbsp&nbsp;</span>
+								}
+							</td>
+						}
+					}
+				}
+				</tr>
+			}
+	</table>
+
+	<!--== Кто ходит ==-->
+	@if (Model.ManTurn)
+	{
+		<h2>Ход: Ваш</h2>
+	}
+	else
+	{
+		<h2>Ход: Бота</h2>
+	}
+	
+	@Html.ActionLink("Перезапуск игры", "StartGame")
+</div>
+
+<!--== Скрипты ==-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
